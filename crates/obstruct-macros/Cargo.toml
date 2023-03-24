@@ -1,5 +1,5 @@
 [package]
-name = "record-macros"
+name = "obstruct-macros"
 version = "0.1.0"
 edition = "2021"
 
