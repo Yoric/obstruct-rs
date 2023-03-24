@@ -1,0 +1,7 @@
+[workspace]
+
+members = [
+    "crates/record-macros",
+    "crates/record",
+    "crates/record-test",
+]
