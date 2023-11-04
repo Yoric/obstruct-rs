@@ -2,8 +2,10 @@
 name = "obstruct-macros"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "Macros for obstruct. You probably want to depend on obstruct instead."
+readme = "../../README.md"
+repository = "https://github.com/Yoric/obstruct-rs"
+license = "MIT"
 
 [dependencies]
 itertools = "0.10"

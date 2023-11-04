@@ -1,7 +1,6 @@
 [workspace]
-
+resolver = "2"
 members = [
     "crates/obstruct-macros",
     "crates/obstruct",
-    "crates/obstruct-test",
 ]

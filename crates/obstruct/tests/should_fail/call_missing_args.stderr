@@ -1,0 +1,17 @@
+error[E0308]: mismatched types
+  --> tests/should_fail/call_missing_args.rs:12:21
+   |
+12 |     let (a, b, c) = call! { test_foo, { b: B, a: A}}; // Missing argument.
+   |                     ^^^^^^^^--------^^^^^^^^^^^^^^^^
+   |                     |       |
+   |                     |       arguments to this function are incorrect
+   |                     expected a tuple with 3 elements, found one with 2 elements
+   |
+   = note: expected tuple `(a<i32>, b<f64>, _)`
+              found tuple `(a<i32>, b<f64>)`
+note: function defined here
+  --> tests/should_fail/call_missing_args.rs:10:18
+   |
+10 |     destruct!{fn test_foo({a: i32, b: f64, c: &'static str}) -> (i32, f64, &'static str) { (a, b, c) }};
+   |     -------------^^^^^^^^------------------------------------------------------------------------------
+   = note: this error originates in the macro `call` (in Nightly builds, run with -Z macro-backtrace for more info)

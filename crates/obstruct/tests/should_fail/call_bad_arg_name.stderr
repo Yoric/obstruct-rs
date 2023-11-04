@@ -1,0 +1,29 @@
+error[E0271]: type mismatch resolving `<blue<()> as Field<()>>::NAME == "green"`
+  --> tests/should_fail/call_bad_arg_name.rs:13:5
+   |
+13 |     destruct! { let {red, green, oops} = structured }; // Look, we've used oops!
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `"green"`, found `"blue"`
+   |
+   = note: expected constant `"green"`
+              found constant `"blue"`
+note: required by a bound in `struct_bad_field_names::assert_type`
+  --> tests/should_fail/call_bad_arg_name.rs:13:5
+   |
+13 |     destruct! { let {red, green, oops} = structured }; // Look, we've used oops!
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `assert_type`
+   = note: this error originates in the macro `destruct` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0271]: type mismatch resolving `<green<f64> as Field<f64>>::NAME == "oops"`
+  --> tests/should_fail/call_bad_arg_name.rs:13:5
+   |
+13 |     destruct! { let {red, green, oops} = structured }; // Look, we've used oops!
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `"oops"`, found `"green"`
+   |
+   = note: expected constant `"oops"`
+              found constant `"green"`
+note: required by a bound in `struct_bad_field_names::assert_type`
+  --> tests/should_fail/call_bad_arg_name.rs:13:5
+   |
+13 |     destruct! { let {red, green, oops} = structured }; // Look, we've used oops!
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `assert_type`
+   = note: this error originates in the macro `destruct` (in Nightly builds, run with -Z macro-backtrace for more info)

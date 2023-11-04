@@ -1,0 +1,107 @@
+error[E0277]: the trait bound `b<f64>: Field<i32>` is not satisfied
+  --> tests/should_fail/struct_bad_field_names.rs:12:21
+   |
+12 |     let (a, b, c) = call! { test_foo, { c: C, b: B, oops: A}}; // Arbitrary order
+   |                     ^^^^^^^^--------^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                     |       |
+   |                     |       required by a bound introduced by this call
+   |                     the trait `Field<i32>` is not implemented for `b<f64>`
+   |
+   = help: the trait `Field<f64>` is implemented for `b<f64>`
+   = help: for that trait implementation, expected `f64`, found `i32`
+note: required by a bound in `test_instruct_destruct_bad_field_names::test_foo`
+  --> tests/should_fail/struct_bad_field_names.rs:10:5
+   |
+10 |     destruct!{fn test_foo({a: i32, b: f64, c: &'static str}) -> (i32, f64, &'static str) { (a, b, c) }};
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `test_foo`
+   = note: this error originates in the macro `destruct` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0271]: type mismatch resolving `<b<f64> as Field<i32>>::NAME == "a"`
+  --> tests/should_fail/struct_bad_field_names.rs:12:21
+   |
+12 |     let (a, b, c) = call! { test_foo, { c: C, b: B, oops: A}}; // Arbitrary order
+   |                     ^^^^^^^^--------^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                     |       |
+   |                     |       required by a bound introduced by this call
+   |                     expected `"a"`, found `<b<f64> as Field<i32>>::NAME`
+   |
+   = note: expected constant `"a"`
+              found constant `<b<f64> as Field<i32>>::NAME`
+note: required by a bound in `test_instruct_destruct_bad_field_names::test_foo`
+  --> tests/should_fail/struct_bad_field_names.rs:10:5
+   |
+10 |     destruct!{fn test_foo({a: i32, b: f64, c: &'static str}) -> (i32, f64, &'static str) { (a, b, c) }};
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `test_foo`
+   = note: this error originates in the macro `destruct` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `c<&str>: Field<f64>` is not satisfied
+  --> tests/should_fail/struct_bad_field_names.rs:12:21
+   |
+12 |     let (a, b, c) = call! { test_foo, { c: C, b: B, oops: A}}; // Arbitrary order
+   |                     ^^^^^^^^--------^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                     |       |
+   |                     |       required by a bound introduced by this call
+   |                     the trait `Field<f64>` is not implemented for `c<&str>`
+   |
+   = help: the trait `Field<&str>` is implemented for `c<&str>`
+   = help: for that trait implementation, expected `&str`, found `f64`
+note: required by a bound in `test_instruct_destruct_bad_field_names::test_foo`
+  --> tests/should_fail/struct_bad_field_names.rs:10:5
+   |
+10 |     destruct!{fn test_foo({a: i32, b: f64, c: &'static str}) -> (i32, f64, &'static str) { (a, b, c) }};
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `test_foo`
+   = note: this error originates in the macro `destruct` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0271]: type mismatch resolving `<c<&str> as Field<f64>>::NAME == "b"`
+  --> tests/should_fail/struct_bad_field_names.rs:12:21
+   |
+12 |     let (a, b, c) = call! { test_foo, { c: C, b: B, oops: A}}; // Arbitrary order
+   |                     ^^^^^^^^--------^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                     |       |
+   |                     |       required by a bound introduced by this call
+   |                     expected `"b"`, found `<c<&str> as Field<f64>>::NAME`
+   |
+   = note: expected constant `"b"`
+              found constant `<c<&str> as Field<f64>>::NAME`
+note: required by a bound in `test_instruct_destruct_bad_field_names::test_foo`
+  --> tests/should_fail/struct_bad_field_names.rs:10:5
+   |
+10 |     destruct!{fn test_foo({a: i32, b: f64, c: &'static str}) -> (i32, f64, &'static str) { (a, b, c) }};
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `test_foo`
+   = note: this error originates in the macro `destruct` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `oops<i32>: Field<&'static str>` is not satisfied
+  --> tests/should_fail/struct_bad_field_names.rs:12:21
+   |
+12 |     let (a, b, c) = call! { test_foo, { c: C, b: B, oops: A}}; // Arbitrary order
+   |                     ^^^^^^^^--------^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                     |       |
+   |                     |       required by a bound introduced by this call
+   |                     the trait `Field<&'static str>` is not implemented for `oops<i32>`
+   |
+   = help: the trait `Field<i32>` is implemented for `oops<i32>`
+   = help: for that trait implementation, expected `i32`, found `&'static str`
+note: required by a bound in `test_instruct_destruct_bad_field_names::test_foo`
+  --> tests/should_fail/struct_bad_field_names.rs:10:5
+   |
+10 |     destruct!{fn test_foo({a: i32, b: f64, c: &'static str}) -> (i32, f64, &'static str) { (a, b, c) }};
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `test_foo`
+   = note: this error originates in the macro `destruct` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0271]: type mismatch resolving `<oops<i32> as Field<&str>>::NAME == "c"`
+  --> tests/should_fail/struct_bad_field_names.rs:12:21
+   |
+12 |     let (a, b, c) = call! { test_foo, { c: C, b: B, oops: A}}; // Arbitrary order
+   |                     ^^^^^^^^--------^^^^^^^^^^^^^^^^^^^^^^^^^
+   |                     |       |
+   |                     |       required by a bound introduced by this call
+   |                     expected `"c"`, found `<oops<i32> as Field<&'static str>>::NAME`
+   |
+   = note: expected constant `"c"`
+              found constant `<oops<i32> as Field<&'static str>>::NAME`
+note: required by a bound in `test_instruct_destruct_bad_field_names::test_foo`
+  --> tests/should_fail/struct_bad_field_names.rs:10:5
+   |
+10 |     destruct!{fn test_foo({a: i32, b: f64, c: &'static str}) -> (i32, f64, &'static str) { (a, b, c) }};
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `test_foo`
+   = note: this error originates in the macro `destruct` (in Nightly builds, run with -Z macro-backtrace for more info)
