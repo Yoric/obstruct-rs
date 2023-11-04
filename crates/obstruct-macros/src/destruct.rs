@@ -3,29 +3,55 @@ use std::iter::zip;
 use itertools::Itertools;
 use proc_macro::TokenStream;
 use quote::{quote, format_ident, TokenStreamExt};
-use syn::{parse_macro_input, parse::Parse, Token, token::{Comma, SelfValue}, Ident, Expr, braced, parenthesized, punctuated::Punctuated, ReturnType, Block, FieldsNamed, Generics, TypeParam, parse_quote, LitStr};
+use syn::{parse::Parse, Token, Ident, Expr, braced, parenthesized, ReturnType, Block, FieldsNamed, Generics, TypeParam, LitStr, Pat, punctuated::Punctuated, parse_macro_input, parse_quote};
 
+struct DestructField {
+    maybe_ref: Option<Token![ref]>,
+    maybe_mut: Option<Token![mut]>,
+    ident: Ident,
+    maybe_pat: Option<Pat>,
+}
+impl DestructField {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let maybe_ref: Option<Token![ref]> = input.parse()?;
+        let maybe_mut: Option<Token![mut]> = input.parse()?;
+        let ident: Ident = input.parse()?;
+        let maybe_colon: Option<Token![:]> = input.parse()?;
+        let maybe_pat = if maybe_colon.is_some() {
+            Some(Pat::parse_multi_with_leading_vert(input)?)
+        } else {
+            None
+        };
+        Ok(Self {
+            maybe_ref,
+            maybe_mut,
+            ident,
+            maybe_pat
+        })
+    }
+}
 
 struct DestructFields {
-    fields: Punctuated<Ident, Comma>
+    pats: Punctuated<DestructField, Token![,]>
 }
 impl Parse for DestructFields {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let fields = input.parse_terminated(Ident::parse, Token![,])?;
+        let pats = input.parse_terminated(DestructField::parse, Token![,])?;
 
         // Reject if there are duplicate assignments.
-        let mut prev: Option<String> = None;
-        for ident in &fields {
-            let ident = ident.to_string();
+        let mut prev = None;
+        for pat in &pats {
             if let Some(prev) = prev {
-                if prev == ident {
-                    panic!("Duplicate field {}", prev);
-                }
+                if prev == pat.ident {
+                    return Err(syn::Error::new(
+                        pat.ident.span(),
+                        format!("Duplicate field {}", pat.ident)))
+                    }
             }
-            prev = Some(ident);
+            prev = Some(pat.ident.clone());
         }
 
-        Ok(DestructFields { fields })
+        Ok(DestructFields { pats })
     }
 }
 
@@ -52,41 +78,74 @@ impl Destruct {
     }
 }
 
-/// A destruct expression, e.g. `destruct!{let {a, b} = foo}`
+/// A destruct expression, e.g. `destruct!{let [ref] {a, b} = foo}`
 pub struct DestructExpression {
     fields: DestructFields,
+    maybe_ref: Option<Token![ref]>,
     expr: Expr,
 }
 impl Parse for DestructExpression {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         input.parse::<Token![let]>()?;
-        let content;
-        braced!(content in input);
-        let fields = content.parse()?;
+        let maybe_ref = input.parse::<Option<Token![ref]>>()?;
+
+        let braces_content;
+        braced!(braces_content in input);
+        let fields = braces_content.parse()?;
+
+
         input.parse::<Token![=]>()?;
         let expr = input.parse()?;
-        Ok(DestructExpression { fields, expr })
+        Ok(DestructExpression { fields, maybe_ref, expr })
     }
 }
 impl DestructExpression {
     fn transform(self) -> TokenStream {
-        let fields: Vec<_> = self.fields.fields.into_iter()
-            .sorted_by_cached_key(|field| field.to_string())
+        let fields: Vec<_> = self.fields.pats.into_iter()
+            .sorted_by_cached_key(|field| field.ident.to_string())
             .collect();
         let expr = self.expr;
+        let maybe_ref = self.maybe_ref;
+        let declarations = fields.iter().map(|field| {
+            let ident = &field.ident;
+            let maybe_ref = maybe_ref.or(field.maybe_ref);
+            let maybe_mut = if maybe_ref.is_some() { // Here, we need `mut` to show up only if we're in a `ref.`
+                field.maybe_mut
+            } else {
+                None
+            };
+            quote!{
+                #maybe_ref #maybe_mut #ident
+            }
+        });
         let mut tokens = quote!{
-            let (#(#fields),*) = #expr;
+            let (#(#declarations),*) = #expr;
         };
         let assigns: Vec<_> = fields.into_iter().map(|field| {
-            let field_name = LitStr::new(&field.to_string(), field.span());
+            let ident = field.ident;
+            let field_name = LitStr::new(&ident.to_string(), ident.span());
+            let maybe_mut = if field.maybe_ref.is_some() { // Here, we need `mut` to show up only if we're NOT in a `ref`.
+                None
+            } else {
+                field.maybe_mut
+            };
+            let assertion_arg = if maybe_ref.is_some() || field.maybe_ref.is_some() {
+                quote!(#ident)
+            } else {
+                quote!(&#ident)
+            };
+            let pattern = match field.maybe_pat {
+                Some(pat) => quote!{ #pat },
+                None => quote!{ #ident }
+            };
             quote!{
                 {
                     fn assert_type<T, U>(_: &T) where T: obstruct::Field::<U, NAME=#field_name> {
                         // Won't compile if we have the wrong type.
                     }
-                    assert_type(&#field)
+                    assert_type(#assertion_arg)
                 }
-                let #field = obstruct::Field::<_>::take(#field);
+                let #maybe_mut #pattern = obstruct::Field::<_>::take(#ident);
             }
         }).collect();
         tokens.append_all(assigns);
@@ -104,10 +163,10 @@ pub struct DestructFunction {
     generics: Generics,
 
     /// If this is a method, `self`.
-    maybe_self: Option<SelfValue>,
+    maybe_self: Option<Token![self]>,
 
     /// Optional comma after `self`.
-    maybe_comma: Option<Comma>,
+    maybe_comma: Option<Token![,]>,
 
     /// Actual arguments.
     bindings: FieldsNamed,

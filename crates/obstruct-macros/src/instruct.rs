@@ -3,7 +3,7 @@
 use itertools::Itertools;
 use proc_macro::TokenStream;
 use quote::{quote, TokenStreamExt};
-use syn::{parse::Parse, Token, Ident, Expr, braced};
+use syn::{parse::Parse, Token, Ident, Expr, braced, LitStr};
 
 /// A binding `foo: expr`.
 #[derive(Debug)]
@@ -87,6 +87,7 @@ impl InstructStruct {
         // Parse input.
         let fields = self.0.into_iter()
             .map(|BasicBind { ident, expr }| {
+                let field_name = LitStr::new(&ident.to_string(), ident.span());
                 quote!{
                     {
                         use obstruct::Field;
@@ -98,12 +99,25 @@ impl InstructStruct {
 
                         // Make it an instance of `Field`.
                         impl<T> Field<T> for #ident<T> {
-                            const NAME: &'static str = stringify!(#ident);
+                            const NAME: &'static str = #field_name;
                             fn take(self) -> T {
                                 self.0
                             }
                         }
 
+                        impl<'a, T> Field<&'a T> for &'a #ident<T> {
+                            const NAME: &'static str = #field_name;
+                            fn take(self) -> &'a T {
+                                &self.0
+                            }
+                        }
+
+                        impl<'a, T> Field<&'a mut T> for &'a mut #ident<T> {
+                            const NAME: &'static str = #field_name;
+                            fn take(self) -> &'a mut T {
+                                &mut self.0
+                            }
+                        }
                         // This is the value we're looking for.
                         #ident(#expr)
                     }
@@ -113,6 +127,8 @@ impl InstructStruct {
 
         let mut tokens = proc_macro2::TokenStream::new();
         tokens.append_separated(fields, quote!{,});
+
+        eprintln!("YORIC: {tokens}");
 
         // Turn it into a tuple.
         quote!{

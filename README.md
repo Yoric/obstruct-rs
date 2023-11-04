@@ -124,7 +124,7 @@ Every use of `instruct!` or `call!` is converted into an ordered tuple of fields
 with type-level information to ensure that we can perform type-checking on
 field names.
 
-```rust
+```ignore
 #![feature(associated_const_equality)]
 use obstruct::{call, instruct, destruct};
 
@@ -159,7 +159,7 @@ let rgb = (blue(2), green(1), red(0));
 
 Similarly, when you call `destruct!`, fields are, once again ordered, so
 
-```rust
+```ignore
 
 #![feature(associated_const_equality)]
 use obstruct::{call, instruct, destruct};
@@ -188,10 +188,17 @@ let green = green.0;
 let red = red.0;
 ```
 
+# Additional features
+
+- [X] Destructuring support for `ref`.
+- [X] Destructuring support for `mut`.
+- [X] Destructuring support for `_`.
+- [X] Destructuring support for `aliases`.
+- [X] Destructuring support for irrefutable patterns.
+
 # Limitations
 
 - I haven't checked how well `call!` and `destruct!` work with methods.
-- `destruct!` doesn't support `ref`, `mut`, `_` yet.
 - No `let else` yet.
 - No pattern-matching of any kind. No idea how to implement *that*.
 - For the time being, everything produced by `instruct!` is a Voldemort type. This means that we cannot write

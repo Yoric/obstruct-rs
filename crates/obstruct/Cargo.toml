@@ -1,6 +1,6 @@
 [package]
 name = "obstruct"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "An experimental implementation of anonymous structs and named function arguments"
 readme = "../../README.md"
@@ -9,5 +9,5 @@ repository = "https://github.com/Yoric/obstruct-rs"
 
 [dependencies]
 trybuild = "1.0.85"
-obstruct-macros = { version = "0.1.0", path = "../obstruct-macros" }
+obstruct-macros = { version = "0.1.1", path = "../obstruct-macros" }
 
