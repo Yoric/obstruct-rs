@@ -212,4 +212,4 @@ if foo {
 
 # See also
 
-- [structx](github.com/oooutlk/structx) offers similar features. I haven't checked how it works yet.
+- [structx](https://github.com/oooutlk/structx) offers similar features. I haven't checked how it works yet.
